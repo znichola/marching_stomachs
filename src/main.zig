@@ -13,11 +13,17 @@ pub fn main() anyerror!void {
 
     // Setup camera
 
-    const cameraPosition: rl.Vector3 = .{ .x = 18, .y = 21, .z = 18 };
+    const cameraPosition: rl.Vector3 = .{ .x = 0, .y = 21, .z = 18 };
     const cameraTarget: rl.Vector3 = .{ .x = 0, .y = 0, .z = 0 };
     const cameraUp: rl.Vector3 = .{ .x = 0, .y = 1, .z = 0 };
     const cameraProjection = rl.CameraProjection.perspective;
-    var camera = rl.Camera{ .fovy = 45.0, .position = cameraPosition, .up = cameraUp, .projection = cameraProjection, .target = cameraTarget };
+    var camera = rl.Camera{
+        .fovy = 45.0,
+        .position = cameraPosition,
+        .up = cameraUp,
+        .projection = cameraProjection,
+        .target = cameraTarget,
+    };
 
     // Setup terrain texture
     const image: rl.Image = try rl.loadImage("resources/heightmap.png");
@@ -45,7 +51,8 @@ pub fn main() anyerror!void {
         // TODO: Update your variables here
         //---------------------------------------------------------------------
 
-        rl.updateCamera(&camera, .first_person);
+        update(&camera);
+        rl.updateCamera(&camera, .custom);
 
         // Draw
         //---------------------------------------------------------------------
@@ -58,7 +65,7 @@ pub fn main() anyerror!void {
 
         rl.beginMode3D(camera);
 
-        rl.drawModel(model, mapPosition, 1, .red);
+        rl.drawModel(model, mapPosition, 1, .green);
         rl.drawGrid(20, 1.0);
 
         rl.endMode3D();
@@ -70,4 +77,22 @@ pub fn main() anyerror!void {
         rl.drawText("Marching Stomachs", 190, 200, 20, .light_gray);
         //---------------------------------------------------------------------
     }
+}
+
+pub fn update(camera: *rl.Camera3D) void {
+    var move = rl.Vector3.zero();
+
+    // x is -x left / +x right
+    // y is up / down
+    // z is -z forward / +z backward
+
+    if (rl.isKeyDown(.w)) move.z = move.z - 1;
+    if (rl.isKeyDown(.s)) move.z = move.z + 1;
+    if (rl.isKeyDown(.a)) move.x = move.x - 1;
+    if (rl.isKeyDown(.d)) move.x = move.x + 1;
+
+    move = move.scale(0.2);
+
+    camera.position = camera.position.add(move);
+    camera.target = camera.target.add(move);
 }

@@ -1,5 +1,7 @@
 # marching\_stomachs
 
+Another idea for a name: STAMA, Supplies, Trade and Marching Armies
+
 ## Getting started
 
 Install correct zig version.
